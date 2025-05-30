@@ -6,21 +6,39 @@ class UserInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const CircleAvatar(backgroundImage: AssetImage(AppAssets.profile)),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text("Angelina, 28", style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(
-              '"Mine is definitely the peace in the morning."',
-              style: TextStyle(fontSize: 12),
+    return SizedBox(
+      width: 58,
+      height: 85,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const CircleAvatar(
+            backgroundImage: AssetImage(AppAssets.profile),
+            radius: 30,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Angelina, 28",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'What is your favorite time \nof the day?',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                  softWrap: true,
+                ),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

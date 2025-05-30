@@ -17,14 +17,14 @@ class OptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = String.fromCharCode(65 + index); // A, B, C, D...
+    final label = String.fromCharCode(65 + index);
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2A2A),
+          color: AppColors.boxButtonColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected ? AppColors.mainFontColor : Colors.transparent,
@@ -38,7 +38,9 @@ class OptionTile extends StatelessWidget {
               height: 24,
               decoration: BoxDecoration(
                 color:
-                    selected ? AppColors.mainFontColor : Colors.grey.shade800,
+                    selected
+                        ? AppColors.mainFontColor
+                        : AppColors.boxButtonColor,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -56,8 +58,8 @@ class OptionTile extends StatelessWidget {
               child: Text(
                 text,
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13.5,
+                  color: Colors.white60,
+                  fontSize: 15,
                   height: 1.3,
                   fontWeight: FontWeight.w500,
                 ),
