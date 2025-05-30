@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:stroll_app/core/constants/colors.dart';
 import 'package:stroll_app/logic/question_cubit.dart';
 import 'package:stroll_app/logic/question_state.dart';
@@ -17,6 +16,20 @@ class StrollPage extends StatefulWidget {
 
 class _StrollPageState extends State<StrollPage> {
   int _currentIndex = 0;
+  String _selectedStroll = "Stroll Bonfire";
+  final List<String> _strollOptions = [
+    "Stroll Bonfire",
+    "Stroll Beach",
+    "Stroll Mountain",
+    "Stroll City",
+  ];
+
+  String _formatCurrentTime() {
+    final now = DateTime.now();
+    final hours = now.hour.toString().padLeft(2, '0');
+    final minutes = now.minute.toString().padLeft(2, '0');
+    return "${hours}h ${minutes}m";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +67,89 @@ class _StrollPageState extends State<StrollPage> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 20,
+                  left: 0,
+                  right: 0,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Dropdown
+                        GestureDetector(
+                          onTap: () {
+                            _showStrollDropdown(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _selectedStroll,
+                                  style: TextStyle(
+                                    color: AppColors.textAppColor,
+                                    fontSize: 34,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: AppColors.textAppColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatCurrentTime(),
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Icon(
+                              Icons.people_outline,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "103",
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -208,9 +304,74 @@ class _StrollPageState extends State<StrollPage> {
           setState(() {
             _currentIndex = index;
           });
-          // Add navigation logic here
+          // Add your navigation logic here
         },
       ),
+    );
+  }
+
+  void _showStrollDropdown(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ..._strollOptions.map((option) {
+                return ListTile(
+                  title: Text(
+                    option,
+                    style: TextStyle(
+                      color:
+                          _selectedStroll == option
+                              ? AppColors.optionSelected
+                              : Colors.white,
+                      fontSize: 16,
+                      fontWeight:
+                          _selectedStroll == option
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                    ),
+                  ),
+                  trailing:
+                      _selectedStroll == option
+                          ? const Icon(
+                            Icons.check,
+                            color: AppColors.optionSelected,
+                          )
+                          : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedStroll = option;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -9,4 +9,6 @@ class AppColors {
   static const Color mainTextColor = Color.fromRGBO(203, 201, 255, 0.7);
   static const Color boxButtonColor = Color.fromRGBO(35, 42, 46, 0.7);
   static const Color bottomColor = Color.fromRGBO(15, 17, 21, 1);
+  static const Color textAppColor = Color.fromRGBO(144, 138, 226, 1);
+  static const Color unSelectedColor = Color.fromRGBO(111, 110, 124, 1);
 }
