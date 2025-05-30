@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:stroll_app/ui/screens/stroll_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
