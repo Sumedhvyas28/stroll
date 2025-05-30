@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +15,11 @@ void main() async {
   final cache = QuestionCache(prefs);
   final repo = QuestionRepository(cache);
 
-  runApp(MyApp(repo));
+  runApp(
+    DevicePreview(enabled: !kReleaseMode, builder: (context) => MyApp(repo)),
+  );
+
+  // runApp(MyApp(repo));
 }
 
 class MyApp extends StatelessWidget {

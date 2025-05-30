@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stroll_app/core/constants/colors.dart';
@@ -33,6 +35,14 @@ class _StrollPageState extends State<StrollPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    // Make background height responsive
+    final backgroundHeight = screenHeight * 0.55;
+    final bottomSectionTop = backgroundHeight;
+
     return Scaffold(
       body: BlocBuilder<QuestionCubit, QuestionState>(
         builder: (context, state) {
@@ -44,11 +54,12 @@ class _StrollPageState extends State<StrollPage> {
             final q = state.question;
             return Stack(
               children: [
+                // Background Image Section
                 Positioned(
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: MediaQuery.of(context).size.height * 0.55,
+                  height: backgroundHeight,
                   child: Stack(
                     children: [
                       Image.asset(
@@ -70,12 +81,12 @@ class _StrollPageState extends State<StrollPage> {
                   ),
                 ),
 
+                // Header Section (Dropdown and Info)
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 20,
-                  left: 0,
-                  right: 0,
-                  child: Align(
-                    alignment: Alignment.topCenter,
+                  top: topPadding + 20,
+                  left: 16,
+                  right: 16,
+                  child: SafeArea(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -95,12 +106,15 @@ class _StrollPageState extends State<StrollPage> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  _selectedStroll,
-                                  style: TextStyle(
-                                    color: AppColors.textAppColor,
-                                    fontSize: 34,
-                                    fontWeight: FontWeight.w500,
+                                Flexible(
+                                  child: Text(
+                                    _selectedStroll,
+                                    style: TextStyle(
+                                      color: AppColors.textAppColor,
+                                      fontSize: screenWidth < 350 ? 28 : 34,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -153,8 +167,9 @@ class _StrollPageState extends State<StrollPage> {
                   ),
                 ),
 
+                // Bottom Content Section (Made Scrollable)
                 Positioned.fill(
-                  top: MediaQuery.of(context).size.height * 0.55,
+                  top: bottomSectionTop,
                   child: Container(
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.only(
@@ -163,129 +178,177 @@ class _StrollPageState extends State<StrollPage> {
                       ),
                       color: Colors.black,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 70, 16, 16),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "\"Mine is definitely the peace in the morning.\"",
-                            style: TextStyle(
-                              color: AppColors.mainTextColor,
-                              fontStyle: FontStyle.italic,
-                              fontSize: 18,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          70,
+                          16,
+                          16 + MediaQuery.of(context).padding.bottom,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Text(
+                                "\"Mine is definitely the peace in the morning.\"",
+                                style: TextStyle(
+                                  color: AppColors.mainTextColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: screenWidth < 350 ? 16 : 18,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
 
-                          // const SizedBox(height: 24),
-                          SizedBox(
-                            height: 195,
-                            child: GridView.count(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 18,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 2.5,
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: List.generate(q.options.length, (i) {
-                                final option = q.options[i];
-                                return OptionTile(
-                                  index: i,
-                                  text: option,
-                                  selected: q.selectedOption == option,
-                                  onTap:
-                                      () => context
-                                          .read<QuestionCubit>()
-                                          .selectOption(option),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                double gridHeight =
+                                    q.options.length <= 4
+                                        ? 195
+                                        : (q.options.length / 2).ceil() * 97.5;
+                                if (screenHeight < 700) {
+                                  gridHeight = math.min(
+                                    gridHeight,
+                                    screenHeight * 0.25,
+                                  );
+                                }
+
+                                return SizedBox(
+                                  height: gridHeight,
+                                  child: GridView.count(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 18,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio:
+                                        screenWidth < 350 ? 2.2 : 2.5,
+                                    physics:
+                                        q.options.length > 4
+                                            ? const BouncingScrollPhysics()
+                                            : const NeverScrollableScrollPhysics(),
+                                    children: List.generate(q.options.length, (
+                                      i,
+                                    ) {
+                                      final option = q.options[i];
+                                      return OptionTile(
+                                        index: i,
+                                        text: option,
+                                        selected: q.selectedOption == option,
+                                        onTap:
+                                            () => context
+                                                .read<QuestionCubit>()
+                                                .selectOption(option),
+                                      );
+                                    }),
+                                  ),
                                 );
-                              }),
+                              },
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+
+                            const SizedBox(height: 12),
+
+                            // Bottom Action Section
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Pick your option.",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize:
+                                                screenWidth < 350 ? 13 : 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 1),
+                                        Text(
+                                          "See who has a similar mind.",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize:
+                                                screenWidth < 350 ? 13 : 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
                                     children: [
-                                      Text(
-                                        "Pick your option.",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: AppColors.mainFontColor,
+                                            width: 2.2,
+                                          ),
+                                          color: Colors.black,
+                                        ),
+                                        padding: EdgeInsets.all(
+                                          screenWidth < 350 ? 10 : 12,
+                                        ),
+                                        child: Image.asset(
+                                          'assets/images/mic.png',
+                                          height: screenWidth < 350 ? 18 : 20,
+                                          width: screenWidth < 350 ? 18 : 20,
+                                          color: AppColors.mainFontColor,
                                         ),
                                       ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        "See who has a similar mind.",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: AppColors.mainFontColor,
+                                          border: Border.all(
+                                            color: AppColors.mainFontColor,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.all(
+                                          screenWidth < 350 ? 10 : 12,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.black,
+                                          size: screenWidth < 350 ? 18 : 20,
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: AppColors.mainFontColor,
-                                          width: 2.2,
-                                        ),
-                                        color: Colors.black,
-                                      ),
-                                      padding: const EdgeInsets.all(12),
-                                      child: Image.asset(
-                                        'assets/images/mic.png',
-                                        height: 20,
-                                        width: 20,
-                                        color: AppColors.mainFontColor,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: AppColors.mainFontColor,
-                                        border: Border.all(
-                                          color: AppColors.mainFontColor,
-                                          width: 1.5,
-                                        ),
-                                      ),
-
-                                      padding: const EdgeInsets.all(12),
-                                      child: const Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.black,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          // const SizedBox(height: 1),
-                        ],
+
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).padding.bottom + 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
 
+                // User Info Tile - Made responsive
                 Positioned(
-                  top: MediaQuery.of(context).size.height * 0.52,
+                  top: bottomSectionTop - (screenHeight * 0.03),
                   left: 30,
                   right: 16,
                   child: const UserInfoTile(),
@@ -314,8 +377,12 @@ class _StrollPageState extends State<StrollPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true, // Make modal responsive
       builder: (BuildContext context) {
         return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
           decoration: const BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.only(
@@ -336,38 +403,52 @@ class _StrollPageState extends State<StrollPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ..._strollOptions.map((option) {
-                return ListTile(
-                  title: Text(
-                    option,
-                    style: TextStyle(
-                      color:
-                          _selectedStroll == option
-                              ? AppColors.optionSelected
-                              : Colors.white,
-                      fontSize: 16,
-                      fontWeight:
-                          _selectedStroll == option
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                    ),
+
+              // Make options scrollable if they exceed screen space
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        _strollOptions.map((option) {
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 4,
+                            ),
+                            title: Text(
+                              option,
+                              style: TextStyle(
+                                color:
+                                    _selectedStroll == option
+                                        ? AppColors.optionSelected
+                                        : Colors.white,
+                                fontSize: 16,
+                                fontWeight:
+                                    _selectedStroll == option
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                              ),
+                            ),
+                            trailing:
+                                _selectedStroll == option
+                                    ? const Icon(
+                                      Icons.check,
+                                      color: AppColors.optionSelected,
+                                    )
+                                    : null,
+                            onTap: () {
+                              setState(() {
+                                _selectedStroll = option;
+                              });
+                              Navigator.pop(context);
+                            },
+                          );
+                        }).toList(),
                   ),
-                  trailing:
-                      _selectedStroll == option
-                          ? const Icon(
-                            Icons.check,
-                            color: AppColors.optionSelected,
-                          )
-                          : null,
-                  onTap: () {
-                    setState(() {
-                      _selectedStroll = option;
-                    });
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
-              const SizedBox(height: 20),
+                ),
+              ),
+
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
             ],
           ),
         );
